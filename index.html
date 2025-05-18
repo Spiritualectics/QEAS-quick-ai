@@ -4,66 +4,60 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TMM-AI Predictor</title>
+  <title>QEAS Quick Score</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f7f7f7; padding: 20px; max-width: 600px; margin: auto; }
-    h1 { color: #222; }
-    label, input { display: block; width: 100%; margin-bottom: 10px; }
-    input { padding: 8px; font-size: 1em; }
-    button { background-color: #007acc; color: white; padding: 10px; border: none; cursor: pointer; width: 100%; }
+    body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; max-width: 600px; margin: auto; }
+    h1 { text-align: center; color: #222; }
+    label { margin-top: 10px; display: block; font-weight: bold; }
+    input[type=range] { width: 100%; }
+    button { background-color: #007acc; color: white; padding: 10px; width: 100%; border: none; cursor: pointer; margin-top: 20px; }
     button:hover { background-color: #005f99; }
-    #result { background: #fff; padding: 15px; margin-top: 20px; border-radius: 8px; border: 1px solid #ccc; }
+    #result { background: white; padding: 20px; margin-top: 20px; border-radius: 8px; border: 1px solid #ccc; }
   </style>
 </head>
 <body>
-  <h1>TMM-AI Death Window Predictor</h1>
-  <label for="age">Current Age</label>
-  <input type="number" id="age" required />
+  <h1>Quick QEAS Self-Score</h1>
 
-  <label for="lambdaH">λₕ – Half-Life Age</label>
-  <input type="number" id="lambdaH" required />
+  <form id="qeasForm">
+    <label>Emotional Stability (0-5)</label>
+    <input type="range" min="0" max="5" step="0.1" id="emotional" value="2.5" />
 
-  <label for="qeasHalf">QEAS Score at λₕ</label>
-  <input type="number" step="0.1" id="qeasHalf" required />
+    <label>Sense of Life Purpose (0-5)</label>
+    <input type="range" min="0" max="5" step="0.1" id="purpose" value="2.5" />
 
-  <label for="qeasNow">Current QEAS Score</label>
-  <input type="number" step="0.1" id="qeasNow" required />
+    <label>Physical Vitality (0-5)</label>
+    <input type="range" min="0" max="5" step="0.1" id="vitality" value="2.5" />
 
-  <button onclick="runPrediction()">Forecast Death Window</button>
+    <label>Mental Clarity (0-5)</label>
+    <input type="range" min="0" max="5" step="0.1" id="clarity" value="2.5" />
+
+    <label>Spiritual Connection (0-5)</label>
+    <input type="range" min="0" max="5" step="0.1" id="spiritual" value="2.5" />
+
+    <button type="button" onclick="calculateQEAS()">Calculate My QEAS</button>
+  </form>
 
   <div id="result"></div>
 
   <script>
-    function runPrediction() {
-      const age = parseFloat(document.getElementById('age').value);
-      const lambdaH = parseFloat(document.getElementById('lambdaH').value);
-      const qeasHalf = parseFloat(document.getElementById('qeasHalf').value);
-      const qeasNow = parseFloat(document.getElementById('qeasNow').value);
+    function calculateQEAS() {
+      const scores = [
+        parseFloat(document.getElementById('emotional').value),
+        parseFloat(document.getElementById('purpose').value),
+        parseFloat(document.getElementById('vitality').value),
+        parseFloat(document.getElementById('clarity').value),
+        parseFloat(document.getElementById('spiritual').value)
+      ];
 
-      if (qeasNow > qeasHalf) {
-        document.getElementById('result').innerHTML = `
-          <strong>Current QEAS indicates energetic recovery.</strong><br>
-          Death is not forecastable under current rising energetic conditions.
-        `;
-        return;
-      }
-
-      const decaySlope = Math.log(qeasHalf / qeasNow) / (age - lambdaH);
-      const yearsLeft = (1 / decaySlope) * Math.log(qeasHalf / 0.8);
-      const deathAge = age + yearsLeft;
-
-      let stage = "";
-      if (qeasNow > 3.5) stage = "Vital – Above Half-Life (Pre-λₕ)";
-      else if (qeasNow > 2.0) stage = "Declining – Post-λₕ, Pre-Tᶠ";
-      else if (qeasNow > 1.5) stage = "Terminal Frequency Collapse (Tᶠ)";
-      else if (qeasNow > 0.8) stage = "Final Imprint Threshold (Tᵢ)";
-      else stage = "Near Dissonant Rupture (Dᵣ)";
+      const total = scores.reduce((a, b) => a + b, 0);
+      const qeas = (total / scores.length).toFixed(2);
 
       document.getElementById('result').innerHTML = `
-        <strong>Decay Slope (λₜ):</strong> ${decaySlope.toFixed(4)}<br>
-        <strong>Estimated Years to Dᵣ:</strong> ${yearsLeft.toFixed(1)}<br>
-        <strong>Forecasted Age of Death (Dᵣ):</strong> ${deathAge.toFixed(1)}<br>
-        <strong>Spiritual Stage:</strong> ${stage}
+        <h3>Your QEAS Score: <span style="color: #007acc">${qeas}</span></h3>
+        <p>This is your current energetic coherence score (0 to 5 scale).</p>
+        <a href="https://spiritualectics.github.io/tmm-ai?qeas=${qeas}">
+          <button style="margin-top:10px">Continue to TMM-AI Forecast</button>
+        </a>
       `;
     }
   </script>
